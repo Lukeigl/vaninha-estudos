@@ -2,6 +2,8 @@
 
 Ambiente de Química Orgânica preparado para Vanessa, inspirado na experiência de estudo da Hanna e mantido em repositório independente.
 
+**Acessar:** [Espaço de estudo da Vaninha](https://lukeigl.github.io/vaninha-estudos/).
+
 ## Conteúdo e recursos
 - Cinco módulos e 30 etapas guiadas, com leitura completa e notas.
 - 60 objetivas comentadas, 15 discursivas com roteiro de autoavaliação e flashcards.
