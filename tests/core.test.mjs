@@ -1,0 +1,10 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {scoreQuiz,balancedQuestions,recordAnswer,applyExamReview,storage,normalizeProgress} from '../study-core.mjs';
+const qs=[{id:'a1',topic:'a',correct:0},{id:'a2',topic:'a',correct:1},{id:'b1',topic:'b',correct:2},{id:'b2',topic:'b',correct:3}];
+test('blank answers are not confused with choice zero',()=>assert.deepEqual(scoreQuiz(qs,{a1:0,a2:0,b1:2}),{correct:2,total:4,unanswered:1}));
+test('exam selection is balanced, unique and capped',()=>{const selected=balancedQuestions(qs,3,['a','b']);assert.equal(selected.length,3);assert.equal(new Set(selected.map(q=>q.id)).size,3);assert.equal(new Set(selected.map(q=>q.topic)).size,2);assert.equal(balancedQuestions(qs,99,['b']).length,2);assert.deepEqual(balancedQuestions(qs,4,[]),[])});
+test('exam blanks and errors go to review and a practice success clears them',()=>{const s={answers:{},review:{}};applyExamReview(s,qs,{a1:0,a2:0,b1:2});assert.deepEqual(s.review,{a1:false,a2:true,b1:false,b2:true});recordAnswer(s,qs[1],1);assert.equal(s.review.a2,false);assert.equal(s.answers.a2,1)});
+test('invalid choice cannot erase an error',()=>{const s={answers:{},review:{a1:true}};assert.throws(()=>recordAnswer(s,{...qs[0],options:['yes','no']},9));assert.equal(s.review.a1,true)});
+test('unavailable and corrupt storage preserve session usability',()=>{const blocked=storage({getItem(){throw Error()},setItem(){throw Error()}});blocked.set('x',{n:2});assert.deepEqual(blocked.get('x',{}),{n:2});const broken=storage({getItem(){return '{bad'},setItem(){}});assert.deepEqual(broken.get('x',{}),{})});
+test('progress clamps steps and removes invalid duplicates',()=>{assert.deepEqual(normalizeProgress({step:99,completed:[0,0,2,8,'3']}),{step:5,completed:[0,2]});assert.deepEqual(normalizeProgress(null),{step:0,completed:[]})});
